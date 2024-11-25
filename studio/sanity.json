@@ -1,12 +1,19 @@
 {
   "root": true,
-  "project": {
-    "name": "squizzy"
-  },
   "api": {
     "projectId": "009wvo1v",
     "dataset": "production"
   },
+  "project": {
+    "name": "squizzy"
+  },
+<<<<<<< Updated upstream
+  "api": {
+    "projectId": "009wvo1v",
+    "dataset": "production"
+  },
+=======
+>>>>>>> Stashed changes
   "plugins": [
     "@sanity/base",
     "@sanity/components",
@@ -18,7 +25,9 @@
   ],
   "env": {
     "development": {
-      "plugins": ["@sanity/vision"]
+      "plugins": [
+        "@sanity/vision"
+      ]
     }
   },
   "parts": [
