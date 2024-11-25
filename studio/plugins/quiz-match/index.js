@@ -3,7 +3,7 @@ import {route} from 'part:@sanity/base/router'
 import QuizMatchTool from './QuizMatchTool'
 
 export default {
-  title: `Let's play`,
+  title: `Jogar`,
   name: 'quiz-match',
   router: route('/:selectedDocumentId'),
   icon: MdPlayArrow,

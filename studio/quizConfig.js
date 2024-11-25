@@ -1,7 +1,7 @@
 export default {
   localWebHost: 'http://localhost:3000', // default Vue port
   localApiHost: 'http://localhost:3000', // default Now API port
-  remoteWebHost: 'https://kahoot-pgm.sanity.studio',
+  remoteWebHost: 'https://kahoot-pgm.sanity.studio/',
   match: {
     correctAnswerScore: 100,
     firstAnswerScore: 50
