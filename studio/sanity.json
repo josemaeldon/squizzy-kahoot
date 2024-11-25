@@ -7,13 +7,6 @@
   "project": {
     "name": "squizzy"
   },
-<<<<<<< Updated upstream
-  "api": {
-    "projectId": "009wvo1v",
-    "dataset": "production"
-  },
-=======
->>>>>>> Stashed changes
   "plugins": [
     "@sanity/base",
     "@sanity/components",
