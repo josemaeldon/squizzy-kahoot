@@ -1,4 +1,4 @@
-const { query } = require('./_src/db')
+const pool = require('./_src/db')
 
 module.exports = async (req, res) => {
   // Handle CORS preflight
@@ -17,10 +17,18 @@ module.exports = async (req, res) => {
   }
 
   try {
-    let body = ''
-    for await (const chunk of req) {
-      body += chunk.toString()
-    }
+    // Read request body
+    const body = await new Promise((resolve, reject) => {
+      let data = ''
+      req.on('data', chunk => {
+        data += chunk.toString()
+      })
+      req.on('end', () => {
+        resolve(data)
+      })
+      req.on('error', reject)
+    })
+    
     const { matchId } = JSON.parse(body || '{}')
 
     if (!matchId) {
@@ -29,7 +37,7 @@ module.exports = async (req, res) => {
     }
 
     // Start the match by setting started_at and setting first question
-    const result = await query(
+    const result = await pool.query(
       `UPDATE matches 
        SET started_at = CURRENT_TIMESTAMP, 
            current_question_index = 0,
