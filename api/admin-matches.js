@@ -6,6 +6,23 @@ function isValidSlug(slug) {
   return /^[a-z0-9-]+$/.test(slug)
 }
 
+// Generate a unique 4-digit PIN
+async function generateUniquePIN() {
+  const maxAttempts = 10
+  for (let i = 0; i < maxAttempts; i++) {
+    const pin = Math.floor(1000 + Math.random() * 9000).toString() // 1000-9999
+    
+    // Check if PIN is already in use
+    const checkQuery = `SELECT id FROM matches WHERE pin = $1`
+    const checkResult = await pool.query(checkQuery, [pin])
+    
+    if (checkResult.rows.length === 0) {
+      return pin
+    }
+  }
+  throw new Error('Could not generate unique PIN after multiple attempts')
+}
+
 module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`)
@@ -69,12 +86,15 @@ module.exports = async (req, res) => {
             return
           }
           
+          // Generate unique PIN
+          const pin = await generateUniquePIN()
+          
           const query = `
-            INSERT INTO matches (slug, quiz_id, status)
-            VALUES ($1, $2, 'waiting')
+            INSERT INTO matches (slug, pin, quiz_id, status)
+            VALUES ($1, $2, $3, 'waiting')
             RETURNING *
           `
-          const result = await pool.query(query, [slug, quizId])
+          const result = await pool.query(query, [slug, pin, quizId])
           
           res.setHeader('Content-Type', 'application/json')
           res.statusCode = 201

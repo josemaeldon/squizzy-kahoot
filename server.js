@@ -38,6 +38,8 @@ const adminQuestionsHandler = require('./api/admin-questions')
 const adminLoginHandler = require('./api/admin-login')
 const adminLogoutHandler = require('./api/admin-logout')
 const adminAuthStatusHandler = require('./api/admin-auth-status')
+const joinMatchByPinHandler = require('./api/join-match-by-pin')
+const startMatchHandler = require('./api/start-match')
 
 // Wrap serverless function handlers for Express
 const wrapHandler = (handler) => {
@@ -65,6 +67,8 @@ app.all('/api/admin/questions', wrapHandler(adminQuestionsHandler))
 app.all('/api/admin/login', wrapHandler(adminLoginHandler))
 app.all('/api/admin/logout', wrapHandler(adminLogoutHandler))
 app.all('/api/admin/auth-status', wrapHandler(adminAuthStatusHandler))
+app.all('/api/join-match-by-pin', wrapHandler(joinMatchByPinHandler))
+app.all('/api/start-match', wrapHandler(startMatchHandler))
 
 // Serve index.html for all other routes (SPA fallback)
 // Note: This serves static HTML files and doesn't need rate limiting
