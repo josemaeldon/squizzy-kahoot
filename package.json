@@ -14,8 +14,6 @@
     "node": "12.x"
   },
   "dependencies": {
-    "@sanity/client": "^1.149.0",
-    "@sanity/image-url": "^0.140.19",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.1",
     "core-js": "^3.5.0",
@@ -28,7 +26,6 @@
     "micro-query": "^0.3.0",
     "nanoid": "^2.1.8",
     "pg": "^8.11.0",
-    "rxjs": "^6.5.4",
     "vue": "^2.6.11",
     "vue-qrcode-reader": "^2.1.1",
     "vue-router": "^3.1.3",

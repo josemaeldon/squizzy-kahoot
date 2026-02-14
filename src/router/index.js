@@ -13,6 +13,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "setup" */ '../views/Setup.vue')
   },
   {
+    path: '/admin',
+    name: 'admin',
+    component: () => import(/* webpackChunkName: "admin" */ '../views/Admin.vue')
+  },
+  {
     path: '*',
     redirect: '/'
   },
@@ -33,8 +38,8 @@ const routes = [
           : next({
               name: 'home',
               params: {
-                title: 'Match not found!',
-                subtitle: 'Please scan another QR code to try again.'
+                title: 'Partida não encontrada!',
+                subtitle: 'Por favor, escaneie outro código QR para tentar novamente.'
               }
             })
       } catch (error) {
