@@ -17,10 +17,18 @@ module.exports = async (req, res) => {
   }
 
   try {
-    let body = ''
-    for await (const chunk of req) {
-      body += chunk.toString()
-    }
+    // Read request body
+    const body = await new Promise((resolve, reject) => {
+      let data = ''
+      req.on('data', chunk => {
+        data += chunk.toString()
+      })
+      req.on('end', () => {
+        resolve(data)
+      })
+      req.on('error', reject)
+    })
+    
     const { matchId } = JSON.parse(body || '{}')
 
     if (!matchId) {
