@@ -29,15 +29,19 @@ RUN npm ci --only=production
 # Copy built files and source from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/api ./api
-COPY --from=builder /app/sanityClientConfig.js ./
 COPY --from=builder /app/server.js ./
+COPY --from=builder /app/database ./database
+COPY healthcheck.sh /app/healthcheck.sh
+
+# Make healthcheck executable
+RUN chmod +x /app/healthcheck.sh
 
 # Expose port
 EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/ping', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+  CMD sh /app/healthcheck.sh
 
 # Start the application
 CMD ["npm", "start"]

@@ -1,6 +1,6 @@
 const micro = require('micro')
 const cors = require('micro-cors')()
-const {ensurePlayerExists, ensurePlayerParticipation, fetchMatch} = require('./_src/sanityApi')
+const {ensurePlayerExists, ensurePlayerParticipation, fetchMatch} = require('./_src/dbApi')
 
 const {json, send} = micro
 

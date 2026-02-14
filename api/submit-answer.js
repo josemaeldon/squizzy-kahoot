@@ -1,7 +1,7 @@
 const micro = require('micro')
 const cors = require('micro-cors')()
 
-const {fetchMatch, submitAnswer} = require('./_src/sanityApi')
+const {fetchMatch, submitAnswer} = require('./_src/dbApi')
 
 const {json, send} = micro
 
@@ -20,7 +20,7 @@ const handler = async (req, res) => {
   }
 
   const postBody = await parse(req)
-  const {playerId, matchSlug, questionKey, selectedChoiceKey} = postBody
+  const {playerId, matchSlug, questionId, choiceId} = postBody
 
   if (!playerId) {
     return send(res, 400, {error: 'missing playerId'})
@@ -28,11 +28,11 @@ const handler = async (req, res) => {
   if (!matchSlug) {
     return send(res, 400, {error: 'missing matchSlug'})
   }
-  if (!questionKey) {
-    return send(res, 400, {error: 'missing questionKey'})
+  if (!questionId) {
+    return send(res, 400, {error: 'missing questionId'})
   }
-  if (!selectedChoiceKey) {
-    return send(res, 400, {error: 'missing selectedChoiceKey'})
+  if (!choiceId) {
+    return send(res, 400, {error: 'missing choiceId'})
   }
 
   const match = await fetchMatch(matchSlug)
@@ -40,7 +40,7 @@ const handler = async (req, res) => {
     return send(res, 400, {error: `no match for slug ${matchSlug}`})
   }
 
-  await submitAnswer(match, playerId, questionKey, selectedChoiceKey)
+  await submitAnswer(match, playerId, questionId, choiceId)
   return send(res, 200, {status: 'ok'})
 }
 
