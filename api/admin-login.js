@@ -3,8 +3,23 @@ const bcrypt = require('bcrypt')
 const { nanoid } = require('nanoid')
 
 // Simple in-memory session store (for production, use Redis or database)
+// NOTE: This implementation is suitable for single-instance deployments.
+// For production with Docker Swarm or multiple instances, consider:
+// - Redis-backed sessions (e.g., connect-redis with express-session)
+// - Database-backed sessions
+// - JWT tokens with proper refresh token mechanism
 const sessions = new Map()
 const SESSION_DURATION = 24 * 60 * 60 * 1000 // 24 hours
+
+// Cleanup expired sessions every hour
+setInterval(() => {
+  const now = Date.now()
+  for (const [token, session] of sessions.entries()) {
+    if (now - session.createdAt > SESSION_DURATION) {
+      sessions.delete(token)
+    }
+  }
+}, 60 * 60 * 1000) // Run every hour
 
 module.exports = async (req, res) => {
   try {

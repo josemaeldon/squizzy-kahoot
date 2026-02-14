@@ -1,6 +1,11 @@
 const pool = require('./_src/db')
 const { nanoid } = require('nanoid')
 
+// Validate slug format (only lowercase letters, numbers, and hyphens)
+function isValidSlug(slug) {
+  return /^[a-z0-9-]+$/.test(slug)
+}
+
 module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`)
@@ -42,6 +47,14 @@ module.exports = async (req, res) => {
             res.setHeader('Content-Type', 'application/json')
             res.statusCode = 400
             res.end(JSON.stringify({ error: 'Quiz ID e slug são obrigatórios' }))
+            return
+          }
+          
+          // Validate slug format
+          if (!isValidSlug(slug)) {
+            res.setHeader('Content-Type', 'application/json')
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'Slug deve conter apenas letras minúsculas, números e hífens' }))
             return
           }
           
@@ -98,6 +111,14 @@ module.exports = async (req, res) => {
           let paramCount = 1
           
           if (slug !== undefined) {
+            // Validate slug format
+            if (!isValidSlug(slug)) {
+              res.setHeader('Content-Type', 'application/json')
+              res.statusCode = 400
+              res.end(JSON.stringify({ error: 'Slug deve conter apenas letras minúsculas, números e hífens' }))
+              return
+            }
+            
             // Check if new slug is already in use by another match
             const checkQuery = `SELECT id FROM matches WHERE slug = $1 AND id != $2`
             const checkResult = await pool.query(checkQuery, [slug, id])

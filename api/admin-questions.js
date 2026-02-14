@@ -3,7 +3,6 @@ const pool = require('./_src/db')
 module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`)
-    const pathParts = url.pathname.split('/').filter(Boolean)
     
     if (req.method === 'GET') {
       // Get questions for a specific quiz

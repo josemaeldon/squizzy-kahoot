@@ -486,17 +486,17 @@ export default {
       }
     },
     async saveQuestion() {
-      // Validate at least one correct answer
-      const hasCorrectAnswer = this.questionForm.choices.some(c => c.isCorrect)
-      if (!hasCorrectAnswer) {
-        alert('Pelo menos uma alternativa deve ser marcada como correta!')
-        return
-      }
-      
-      // Validate all choices have text
+      // Validate all choices have text first
       const allChoicesHaveText = this.questionForm.choices.every(c => c.choiceText.trim())
       if (!allChoicesHaveText) {
         alert('Todas as alternativas devem ter texto!')
+        return
+      }
+      
+      // Then validate at least one correct answer
+      const hasCorrectAnswer = this.questionForm.choices.some(c => c.isCorrect)
+      if (!hasCorrectAnswer) {
+        alert('Pelo menos uma alternativa deve ser marcada como correta!')
         return
       }
       
