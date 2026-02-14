@@ -1,6 +1,9 @@
 const pool = require('./db')
 const fs = require('fs')
 const path = require('path')
+const bcrypt = require('bcrypt')
+
+const SALT_ROUNDS = 10
 
 // Check if database is initialized
 async function checkDatabaseInitialized() {
@@ -22,31 +25,63 @@ async function checkDatabaseInitialized() {
 
 // Initialize database schema
 async function initializeDatabase() {
+  const client = await pool.connect()
   try {
+    await client.query('BEGIN')
+    
     const schemaPath = path.join(__dirname, '../../database/schema.sql')
     const schema = fs.readFileSync(schemaPath, 'utf8')
     
-    await pool.query(schema)
+    // Split schema into individual statements and execute them
+    const statements = schema
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+    
+    for (const statement of statements) {
+      await client.query(statement)
+    }
+    
+    await client.query('COMMIT')
     console.log('Database schema initialized successfully')
     return true
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error('Error initializing database schema:', error)
     throw error
+  } finally {
+    client.release()
   }
 }
 
 // Load seed data
 async function loadSeedData() {
+  const client = await pool.connect()
   try {
+    await client.query('BEGIN')
+    
     const seedPath = path.join(__dirname, '../../database/seed.sql')
     const seed = fs.readFileSync(seedPath, 'utf8')
     
-    await pool.query(seed)
+    // Split seed into individual statements and execute them
+    const statements = seed
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+    
+    for (const statement of statements) {
+      await client.query(statement)
+    }
+    
+    await client.query('COMMIT')
     console.log('Seed data loaded successfully')
     return true
   } catch (error) {
+    await client.query('ROLLBACK')
     console.error('Error loading seed data:', error)
     throw error
+  } finally {
+    client.release()
   }
 }
 
@@ -64,17 +99,18 @@ async function createAdminUser(username, password) {
       )
     `)
     
-    // For simplicity, we're storing a simple hash (in production, use bcrypt)
-    // This is a basic implementation for the auto-installer
-    const crypto = require('crypto')
-    const passwordHash = crypto.createHash('sha256').update(password).digest('hex')
+    // Check if any admin users already exist
+    const existingAdmins = await pool.query('SELECT COUNT(*) as count FROM admins')
+    if (existingAdmins.rows[0].count > 0) {
+      throw new Error('Admin user already exists. Setup can only be run once.')
+    }
+    
+    // Hash password with bcrypt
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS)
     
     await pool.query(`
       INSERT INTO admins (username, password_hash) 
       VALUES ($1, $2)
-      ON CONFLICT (username) DO UPDATE SET 
-        password_hash = $2,
-        updated_at = CURRENT_TIMESTAMP
     `, [username, passwordHash])
     
     console.log('Admin user created successfully')

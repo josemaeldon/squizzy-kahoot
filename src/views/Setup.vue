@@ -4,7 +4,7 @@
       <h1 class="setup-title">Welcome to Squizzy Setup</h1>
       <p class="setup-subtitle">Configure your Squizzy installation</p>
       
-      <div v-if="!loading && !setupComplete" class="setup-form">
+      <div v-if="!setupComplete" class="setup-form">
         <div v-if="error" class="error-message">
           {{ error }}
         </div>
@@ -65,10 +65,6 @@
         </button>
       </div>
       
-      <div v-if="loading" class="loading">
-        <p>Checking setup status...</p>
-      </div>
-      
       <div v-if="setupComplete" class="success-message">
         <h2>Setup Complete!</h2>
         <p>Your Squizzy installation is ready to use.</p>
@@ -91,7 +87,6 @@ export default {
       adminPassword: '',
       adminPasswordConfirm: '',
       loadSampleData: true,
-      loading: true,
       processing: false,
       error: '',
       setupComplete: false
@@ -107,24 +102,9 @@ export default {
     }
   },
   async mounted() {
-    await this.checkSetupStatus()
+    // Component is mounted, ready for setup
   },
   methods: {
-    async checkSetupStatus() {
-      try {
-        const response = await axios.get('/api/setup-status')
-        if (response.data.initialized) {
-          // Already initialized, redirect to home
-          this.$router.push('/')
-        } else {
-          this.loading = false
-        }
-      } catch (error) {
-        console.error('Error checking setup status:', error)
-        this.error = 'Failed to check setup status. Please try again.'
-        this.loading = false
-      }
-    },
     async completeSetup() {
       this.error = ''
       this.processing = true

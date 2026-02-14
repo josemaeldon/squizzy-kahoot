@@ -51,27 +51,44 @@ const router = new VueRouter({
 })
 
 // Global navigation guard to check setup status
-let setupChecked = false
+let setupCheckPromise = null
+
 router.beforeEach(async (to, from, next) => {
-  // Skip setup check if already on setup page or if we've already checked
-  if (to.path === '/setup' || setupChecked) {
+  // Skip setup check if already on setup page
+  if (to.path === '/setup') {
     next()
     return
   }
   
+  // Reuse existing setup check promise if one is in flight
+  if (!setupCheckPromise) {
+    setupCheckPromise = axios.get('/api/setup-status')
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error checking setup status:', error)
+        // Return null to indicate failure
+        return null
+      })
+  }
+  
   try {
-    const response = await axios.get('/api/setup-status')
-    setupChecked = true
+    const setupStatus = await setupCheckPromise
     
-    if (response.data.needsSetup) {
+    if (!setupStatus) {
+      // Setup check failed - show error in console but allow navigation
+      console.error('Failed to check setup status. Application may not be properly initialized.')
+      next()
+      return
+    }
+    
+    if (setupStatus.needsSetup) {
       // Redirect to setup if database is not initialized
       next('/setup')
     } else {
       next()
     }
   } catch (error) {
-    console.error('Error checking setup status:', error)
-    // Continue navigation even if setup check fails
+    console.error('Unexpected error in navigation guard:', error)
     next()
   }
 })

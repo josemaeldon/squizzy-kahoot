@@ -1,5 +1,7 @@
 const { completeSetup, checkDatabaseInitialized } = require('./_src/setup')
 
+const MAX_BODY_SIZE = 1024 * 10 // 10KB limit for setup requests
+
 module.exports = async (req, res) => {
   // Only allow POST requests
   if (req.method !== 'POST') {
@@ -21,9 +23,23 @@ module.exports = async (req, res) => {
       return
     }
     
-    // Parse request body
+    // Parse request body with size limit
     let body = ''
+    let bodySize = 0
+    
     req.on('data', chunk => {
+      bodySize += chunk.length
+      
+      if (bodySize > MAX_BODY_SIZE) {
+        res.setHeader('Content-Type', 'application/json')
+        res.statusCode = 413
+        res.end(JSON.stringify({ 
+          error: 'Request body too large'
+        }))
+        req.destroy()
+        return
+      }
+      
       body += chunk.toString()
     })
     
