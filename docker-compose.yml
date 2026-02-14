@@ -9,8 +9,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-squizzy}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
-      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
     deploy:
       replicas: 1
       restart_policy:

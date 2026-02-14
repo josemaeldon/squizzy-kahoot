@@ -17,6 +17,7 @@ Squizzy is a real-time quiz game with self-hosted PostgreSQL backend.
 - 📱 Mobile-optimized interface
 - 🔄 Automatic scaling and load balancing
 - 💾 Built-in backup and restore
+- 🚀 Auto-installer for easy first-time setup
 
 ## Quick Start
 
@@ -43,6 +44,12 @@ docker stack deploy -c docker-compose.yml squizzy
 http://localhost:3000
 ```
 
+5. Complete the setup wizard:
+   - On first access, you'll be redirected to the setup page
+   - Enter an admin username and password
+   - Choose whether to load sample quiz data
+   - Click "Complete Setup"
+
 For detailed deployment instructions, see [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md).
 
 ## Architecture
@@ -62,7 +69,7 @@ The application includes:
 - **Players**: Player information
 - **Answers**: Player responses and scoring
 
-Sample data is automatically loaded on first startup.
+Sample data is automatically loaded on first startup if you choose to load it during the setup wizard.
 
 ## API Endpoints
 
@@ -88,8 +95,6 @@ npm install
 2. Set up PostgreSQL database:
 ```bash
 createdb squizzy
-psql squizzy < database/schema.sql
-psql squizzy < database/seed.sql
 ```
 
 3. Configure environment:
@@ -102,6 +107,13 @@ cp .env.docker.example .env
 ```bash
 npm run dev
 ```
+
+5. Open your browser and navigate to http://localhost:8080 (or the port shown in terminal)
+
+6. Complete the setup wizard:
+   - Enter an admin username and password
+   - Choose whether to load sample quiz data
+   - Click "Complete Setup"
 
 ### Build for Production
 

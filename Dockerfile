@@ -1,7 +1,10 @@
 # Build stage
-FROM node:12-alpine as builder
+FROM node:12-alpine AS builder
 
 WORKDIR /app
+
+# Install build dependencies (Python and make for node-sass)
+RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY package*.json ./
@@ -19,6 +22,9 @@ RUN npm run build
 FROM node:12-alpine
 
 WORKDIR /app
+
+# Install runtime dependencies (Python for node-sass if needed in production)
+RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY package*.json ./

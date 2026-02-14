@@ -27,6 +27,8 @@ const pingHandler = require('./api/ping')
 const signUpPlayerHandler = require('./api/sign-up-player')
 const submitAnswerHandler = require('./api/submit-answer')
 const withdrawPlayerHandler = require('./api/withdraw-player')
+const setupStatusHandler = require('./api/setup-status')
+const setupHandler = require('./api/setup')
 
 // Wrap serverless function handlers for Express
 const wrapHandler = (handler) => {
@@ -42,6 +44,8 @@ const wrapHandler = (handler) => {
 
 // API endpoints
 app.all('/api/ping', wrapHandler(pingHandler))
+app.all('/api/setup-status', wrapHandler(setupStatusHandler))
+app.all('/api/setup', wrapHandler(setupHandler))
 app.all('/api/sign-up-player', wrapHandler(signUpPlayerHandler))
 app.all('/api/submit-answer', wrapHandler(submitAnswerHandler))
 app.all('/api/withdraw-player', wrapHandler(withdrawPlayerHandler))
