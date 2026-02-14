@@ -236,9 +236,13 @@
           <!-- Match QR Code Modal -->
           <div v-if="showQrCode" class="form-modal" @click.self="showQrCode = null">
             <div class="form-content">
-              <h3>QR Code da Partida</h3>
+              <h3>QR Code e PIN da Partida</h3>
               <div class="qr-code-container">
                 <canvas ref="qrCodeCanvas"></canvas>
+                <div class="pin-display">
+                  <span class="pin-label">PIN:</span>
+                  <span class="pin-value">{{ matchPin }}</span>
+                </div>
                 <p class="match-url">{{ getMatchUrl(showQrCode) }}</p>
               </div>
               <div class="form-actions">
@@ -260,11 +264,19 @@
               <div class="match-info">
                 <h3>{{ match.quiz?.title || 'Quiz' }}</h3>
                 <p>Slug: /match/{{ match.slug }}</p>
-                <p>Status: <span class="status-badge" :class="match.status">{{ match.status }}</span></p>
+                <p v-if="match.pin"><strong>PIN:</strong> <span class="pin-badge">{{ match.pin }}</span></p>
+                <p>Status: <span class="status-badge" :class="match.status">{{ getStatusLabel(match.status) }}</span></p>
                 <small>{{ match.player_count || 0 }} jogador(es)</small>
               </div>
               <div class="match-actions">
-                <button class="btn btn-small btn-success" @click="showMatchQrCode(match.slug)">
+                <button 
+                  v-if="!match.started_at" 
+                  class="btn btn-small btn-success" 
+                  @click="startMatch(match.id)"
+                >
+                  ▶️ Iniciar Partida
+                </button>
+                <button class="btn btn-small btn-success" @click="showMatchQrCode(match)">
                   📱 QR Code
                 </button>
                 <button class="btn btn-small" @click="copyMatchUrl(match.slug)">
@@ -327,6 +339,7 @@ export default {
       showQuestionManager: false,
       showQuestionForm: false,
       showQrCode: null,
+      matchPin: null,
       quizForm: {
         title: '',
         description: ''
@@ -591,13 +604,14 @@ export default {
         alert(`Link da partida: ${url}`)
       })
     },
-    async showMatchQrCode(slug) {
-      this.showQrCode = slug
+    async showMatchQrCode(match) {
+      this.showQrCode = match.slug
+      this.matchPin = match.pin || 'N/A'
       await this.$nextTick()
       
       const canvas = this.$refs.qrCodeCanvas
       if (canvas) {
-        const url = this.getMatchUrl(slug)
+        const url = this.getMatchUrl(match.slug)
         try {
           await QRCode.toCanvas(canvas, url, {
             width: 300,
@@ -612,6 +626,30 @@ export default {
           alert('Erro ao gerar QR code')
         }
       }
+    },
+    
+    async startMatch(matchId) {
+      if (!confirm('Deseja iniciar esta partida? Os jogadores começarão a ver as perguntas.')) {
+        return
+      }
+      
+      try {
+        await axios.post('/api/start-match', { matchId })
+        alert('Partida iniciada com sucesso!')
+        await this.loadMatches()
+      } catch (error) {
+        console.error('Error starting match:', error)
+        alert(error.response?.data?.error || 'Erro ao iniciar partida')
+      }
+    },
+    
+    getStatusLabel(status) {
+      const labels = {
+        'waiting': 'Aguardando',
+        'in_progress': 'Em andamento',
+        'completed': 'Concluída'
+      }
+      return labels[status] || status
     },
     
     async logout() {
@@ -987,12 +1025,45 @@ export default {
     border: 2px solid #e2e8f0
     border-radius: 0.5rem
   
+  .pin-display
+    display: flex
+    align-items: center
+    gap: 0.75rem
+    font-size: 1.25rem
+    padding: 0.75rem 1.5rem
+    background: #f0f9ff
+    border: 2px solid #0284c7
+    border-radius: 0.5rem
+    
+    .pin-label
+      color: #0369a1
+      font-weight: 600
+    
+    .pin-value
+      font-size: 2rem
+      font-weight: 700
+      color: #0c4a6e
+      letter-spacing: 0.5rem
+      font-family: monospace
+  
   .match-url
     font-family: monospace
     font-size: 0.875rem
     color: #666
     word-break: break-all
     text-align: center
+
+.pin-badge
+  display: inline-block
+  font-size: 1.125rem
+  font-weight: 700
+  color: #0c4a6e
+  background: #f0f9ff
+  padding: 0.25rem 0.75rem
+  border-radius: 0.375rem
+  border: 2px solid #0284c7
+  letter-spacing: 0.25rem
+  font-family: monospace
 
 @media (max-width: 768px)
   .admin
