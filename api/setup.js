@@ -26,17 +26,24 @@ module.exports = async (req, res) => {
     // Parse request body with size limit
     let body = ''
     let bodySize = 0
+    let errorSent = false
     
     req.on('data', chunk => {
+      if (errorSent) return
+      
       bodySize += chunk.length
       
       if (bodySize > MAX_BODY_SIZE) {
+        errorSent = true
+        // Remove listeners to prevent further processing
+        req.removeAllListeners('data')
+        req.removeAllListeners('end')
+        
         res.setHeader('Content-Type', 'application/json')
         res.statusCode = 413
         res.end(JSON.stringify({ 
           error: 'Request body too large'
         }))
-        req.destroy()
         return
       }
       
@@ -44,6 +51,8 @@ module.exports = async (req, res) => {
     })
     
     req.on('end', async () => {
+      if (errorSent) return
+      
       try {
         const config = JSON.parse(body)
         

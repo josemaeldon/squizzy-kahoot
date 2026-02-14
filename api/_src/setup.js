@@ -32,15 +32,9 @@ async function initializeDatabase() {
     const schemaPath = path.join(__dirname, '../../database/schema.sql')
     const schema = fs.readFileSync(schemaPath, 'utf8')
     
-    // Split schema into individual statements and execute them
-    const statements = schema
-      .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
-    
-    for (const statement of statements) {
-      await client.query(statement)
-    }
+    // PostgreSQL supports executing multiple statements in a single query
+    // This is safer than splitting by semicolons which can break on complex statements
+    await client.query(schema)
     
     await client.query('COMMIT')
     console.log('Database schema initialized successfully')
@@ -63,15 +57,8 @@ async function loadSeedData() {
     const seedPath = path.join(__dirname, '../../database/seed.sql')
     const seed = fs.readFileSync(seedPath, 'utf8')
     
-    // Split seed into individual statements and execute them
-    const statements = seed
-      .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0)
-    
-    for (const statement of statements) {
-      await client.query(statement)
-    }
+    // PostgreSQL supports executing multiple statements in a single query
+    await client.query(seed)
     
     await client.query('COMMIT')
     console.log('Seed data loaded successfully')

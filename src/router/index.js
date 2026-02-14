@@ -52,6 +52,29 @@ const router = new VueRouter({
 
 // Global navigation guard to check setup status
 let setupCheckPromise = null
+let setupCheckComplete = false
+
+async function checkSetupStatus() {
+  if (!setupCheckPromise) {
+    setupCheckPromise = axios.get('/api/setup-status')
+      .then(response => {
+        setupCheckComplete = true
+        return response.data
+      })
+      .catch(error => {
+        console.error('Error checking setup status:', error)
+        setupCheckComplete = true
+        return null
+      })
+      .finally(() => {
+        // Reset promise after completion to allow fresh checks if needed
+        // But keep result cached via setupCheckComplete flag
+        setupCheckPromise = null
+      })
+  }
+  
+  return setupCheckPromise
+}
 
 router.beforeEach(async (to, from, next) => {
   // Skip setup check if already on setup page
@@ -60,19 +83,14 @@ router.beforeEach(async (to, from, next) => {
     return
   }
   
-  // Reuse existing setup check promise if one is in flight
-  if (!setupCheckPromise) {
-    setupCheckPromise = axios.get('/api/setup-status')
-      .then(response => response.data)
-      .catch(error => {
-        console.error('Error checking setup status:', error)
-        // Return null to indicate failure
-        return null
-      })
+  // Skip if we already completed the setup check successfully
+  if (setupCheckComplete) {
+    next()
+    return
   }
   
   try {
-    const setupStatus = await setupCheckPromise
+    const setupStatus = await checkSetupStatus()
     
     if (!setupStatus) {
       // Setup check failed - show error in console but allow navigation
