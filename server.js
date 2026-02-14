@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
+const { runMigrations } = require('./database/migrations')
 
 const app = express()
 const PORT = process.env.PORT || 80
@@ -81,6 +82,20 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+// Run database migrations before starting the server
+async function startServer() {
+  try {
+    console.log('Running database migrations...')
+    await runMigrations()
+    
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on port ${PORT}`)
+    })
+  } catch (error) {
+    console.error('Failed to start server:', error)
+    console.error('Database migrations failed. Please check your database configuration.')
+    process.exit(1)
+  }
+}
+
+startServer()
