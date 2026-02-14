@@ -1,11 +1,6 @@
 <template>
   <div class="home">
     <squizzy-squid :mouth="expression.mouth" class="home-squizzy" />
-    <div v-if="status" class="label">
-      <a href="https://sanity.io" target="_blank" rel="noopener noreferrer" class="sanity-link">{{
-        status
-      }}</a>
-    </div>
     <h1 class="page-title">{{ title }}</h1>
     <p class="page-subtitle">{{ subtitle }}</p>
   </div>
@@ -22,7 +17,6 @@ export default {
     return {
       title: 'Welcome to Squizzy!',
       subtitle: 'To play, find a QR code to scan or a URL to follow',
-      status: 'Powered by Sanity',
       expression: {mouth: 'happy'}
     }
   },

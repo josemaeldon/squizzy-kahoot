@@ -59,7 +59,7 @@ export default {
       const player = this.$store.state.playerStore.player
       return this.activeView.name !== 'lobby'
         ? `${this.match && player ? 'Joined' : 'Joined'}: ${this.match.quiz.title}`
-        : 'Powered by Sanity'
+        : ''
     },
 
     activeView() {

@@ -29,6 +29,7 @@ const submitAnswerHandler = require('./api/submit-answer')
 const withdrawPlayerHandler = require('./api/withdraw-player')
 const setupStatusHandler = require('./api/setup-status')
 const setupHandler = require('./api/setup')
+const getMatchDetailsHandler = require('./api/get-match-details')
 
 // Wrap serverless function handlers for Express
 const wrapHandler = (handler) => {
@@ -49,6 +50,7 @@ app.all('/api/setup', wrapHandler(setupHandler))
 app.all('/api/sign-up-player', wrapHandler(signUpPlayerHandler))
 app.all('/api/submit-answer', wrapHandler(submitAnswerHandler))
 app.all('/api/withdraw-player', wrapHandler(withdrawPlayerHandler))
+app.all('/api/get-match-details', wrapHandler(getMatchDetailsHandler))
 
 // Serve index.html for all other routes (SPA fallback)
 // Note: This serves static HTML files and doesn't need rate limiting
