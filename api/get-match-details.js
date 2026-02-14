@@ -12,7 +12,13 @@ module.exports = async (req, res) => {
   
   try {
     // Get slug from query parameter
-    const slug = req.query?.slug || req.url?.split('?slug=')[1]?.split('&')[0]
+    let slug = req.query && req.query.slug
+    if (!slug && req.url) {
+      const urlPart = req.url.split('?slug=')[1]
+      if (urlPart) {
+        slug = urlPart.split('&')[0]
+      }
+    }
     
     if (!slug) {
       res.setHeader('Content-Type', 'application/json')
