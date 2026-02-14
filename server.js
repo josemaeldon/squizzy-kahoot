@@ -1,12 +1,23 @@
 const express = require('express')
 const path = require('path')
 const cors = require('cors')
+const rateLimit = require('express-rate-limit')
 
 const app = express()
 const PORT = process.env.PORT || 3000
 
 // Enable CORS
 app.use(cors())
+
+// Rate limiting for API endpoints
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.'
+})
+
+// Apply rate limiting to API routes
+app.use('/api/', apiLimiter)
 
 // Serve static files from the dist directory
 app.use(express.static(path.join(__dirname, 'dist')))
