@@ -256,6 +256,39 @@
             </div>
           </div>
 
+          <!-- Match Players Modal -->
+          <div v-if="showMatchPlayers" class="form-modal" @click.self="closeMatchPlayersModal">
+            <div class="form-content">
+              <h3>Jogadores - {{ selectedMatch?.quiz?.title }}</h3>
+              <p class="help-text">Gerencie os jogadores desta partida</p>
+              
+              <div v-if="matchPlayers.length === 0" class="empty-message">
+                Nenhum jogador ainda nesta partida.
+              </div>
+              
+              <div v-else class="players-list">
+                <div v-for="player in matchPlayers" :key="player.match_player_id" class="player-item">
+                  <div class="player-info">
+                    <span class="player-name">{{ player.player_name }}</span>
+                    <span class="player-score">{{ player.score }} pontos</span>
+                  </div>
+                  <button 
+                    class="btn btn-small btn-danger" 
+                    @click="removePlayerFromMatch(player.match_player_id)"
+                  >
+                    Remover
+                  </button>
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button class="btn btn-secondary" @click="closeMatchPlayersModal">
+                  Fechar
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="match-list">
             <p v-if="matches.length === 0" class="empty-message">
               Nenhuma partida criada ainda.
@@ -275,6 +308,16 @@
                   @click="startMatch(match.id)"
                 >
                   ▶️ Iniciar Partida
+                </button>
+                <button 
+                  v-if="match.started_at && !match.ended_at" 
+                  class="btn btn-small btn-warning" 
+                  @click="finishMatch(match.id)"
+                >
+                  ⏹️ Finalizar Partida
+                </button>
+                <button class="btn btn-small" @click="showMatchPlayersModal(match)">
+                  👥 Jogadores
                 </button>
                 <button class="btn btn-small btn-success" @click="showMatchQrCode(match)">
                   📱 QR Code
@@ -340,6 +383,9 @@ export default {
       showQuestionForm: false,
       showQrCode: null,
       matchPin: null,
+      showMatchPlayers: false,
+      matchPlayers: [],
+      selectedMatch: null,
       quizForm: {
         title: '',
         description: ''
@@ -650,6 +696,59 @@ export default {
         'completed': 'Concluída'
       }
       return labels[status] || status
+    },
+    
+    async finishMatch(matchId) {
+      if (!confirm('Deseja finalizar esta partida? Ela será marcada como concluída.')) {
+        return
+      }
+      
+      try {
+        await axios.post('/api/admin/finish-match', { matchId })
+        alert('Partida finalizada com sucesso!')
+        await this.loadMatches()
+      } catch (error) {
+        console.error('Error finishing match:', error)
+        alert(error.response?.data?.error || 'Erro ao finalizar partida')
+      }
+    },
+    
+    async showMatchPlayersModal(match) {
+      this.selectedMatch = match
+      this.showMatchPlayers = true
+      await this.loadMatchPlayers(match.id)
+    },
+    
+    closeMatchPlayersModal() {
+      this.showMatchPlayers = false
+      this.selectedMatch = null
+      this.matchPlayers = []
+    },
+    
+    async loadMatchPlayers(matchId) {
+      try {
+        const response = await axios.get(`/api/admin/match-players?matchId=${matchId}`)
+        this.matchPlayers = response.data
+      } catch (error) {
+        console.error('Error loading match players:', error)
+        alert('Erro ao carregar jogadores')
+      }
+    },
+    
+    async removePlayerFromMatch(matchPlayerId) {
+      if (!confirm('Deseja remover este jogador da partida?')) {
+        return
+      }
+      
+      try {
+        await axios.delete(`/api/admin/match-players?matchPlayerId=${matchPlayerId}`)
+        alert('Jogador removido com sucesso!')
+        await this.loadMatchPlayers(this.selectedMatch.id)
+        await this.loadMatches() // Refresh to update player count
+      } catch (error) {
+        console.error('Error removing player:', error)
+        alert(error.response?.data?.error || 'Erro ao remover jogador')
+      }
     },
     
     async logout() {
@@ -1064,6 +1163,49 @@ export default {
   border: 2px solid #0284c7
   letter-spacing: 0.25rem
   font-family: monospace
+
+.players-list
+  display: flex
+  flex-direction: column
+  gap: 0.75rem
+  max-height: 400px
+  overflow-y: auto
+  padding: 0.5rem
+
+.player-item
+  display: flex
+  justify-content: space-between
+  align-items: center
+  padding: 1rem
+  background: #f8fafc
+  border: 1px solid #e2e8f0
+  border-radius: 0.5rem
+  transition: all 0.2s
+  
+  &:hover
+    background: #f1f5f9
+    border-color: #cbd5e1
+  
+  .player-info
+    display: flex
+    flex-direction: column
+    gap: 0.25rem
+    
+    .player-name
+      font-weight: 600
+      font-size: 1rem
+      color: #1e293b
+    
+    .player-score
+      font-size: 0.875rem
+      color: #64748b
+
+.btn-warning
+  background: #f59e0b
+  color: white
+  
+  &:hover
+    background: #d97706
 
 @media (max-width: 768px)
   .admin
