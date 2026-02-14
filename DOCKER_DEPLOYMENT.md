@@ -39,6 +39,8 @@ The application also supports Laravel-style DB_* environment variables, which ta
 - `PORT`: Application port (default: 80)
 - `NODE_ENV`: Environment (production/development)
 
+**Note on Port 80**: The application now defaults to port 80 instead of 3000 for easier integration with reverse proxies like Traefik. Docker containers can bind to port 80 without privilege issues. If you need to use a different port, set the `PORT` environment variable.
+
 **Note**: The application now defaults to port 80 instead of 3000 for easier integration with reverse proxies like Traefik.
 
 ## Deploy to Docker Swarm
@@ -201,6 +203,8 @@ To add your own quizzes, you can:
 ## Using with External PostgreSQL and Traefik
 
 If you want to use an external PostgreSQL database (e.g., from another Docker stack) and Traefik for routing, here's an example configuration:
+
+**Security Note**: The example below shows passwords in plaintext for demonstration purposes. In production, use Docker secrets or an external secret management system instead.
 
 ```yaml
 version: "3.8"
