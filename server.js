@@ -12,8 +12,10 @@ app.use(cors())
 // Rate limiting for API endpoints
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false // Disable the `X-RateLimit-*` headers
 })
 
 // Apply rate limiting to API routes
@@ -36,6 +38,8 @@ const adminQuestionsHandler = require('./api/admin-questions')
 const adminLoginHandler = require('./api/admin-login')
 const adminLogoutHandler = require('./api/admin-logout')
 const adminAuthStatusHandler = require('./api/admin-auth-status')
+const joinMatchByPinHandler = require('./api/join-match-by-pin')
+const startMatchHandler = require('./api/start-match')
 
 // Wrap serverless function handlers for Express
 const wrapHandler = (handler) => {
@@ -63,6 +67,8 @@ app.all('/api/admin/questions', wrapHandler(adminQuestionsHandler))
 app.all('/api/admin/login', wrapHandler(adminLoginHandler))
 app.all('/api/admin/logout', wrapHandler(adminLogoutHandler))
 app.all('/api/admin/auth-status', wrapHandler(adminAuthStatusHandler))
+app.all('/api/join-match-by-pin', wrapHandler(joinMatchByPinHandler))
+app.all('/api/start-match', wrapHandler(startMatchHandler))
 
 // Serve index.html for all other routes (SPA fallback)
 // Note: This serves static HTML files and doesn't need rate limiting

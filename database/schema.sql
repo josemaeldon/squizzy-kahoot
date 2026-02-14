@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS choices (
 CREATE TABLE IF NOT EXISTS matches (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     slug VARCHAR(100) UNIQUE NOT NULL,
+    pin VARCHAR(4) UNIQUE,
     quiz_id UUID NOT NULL REFERENCES quizzes(id),
     status VARCHAR(50) DEFAULT 'waiting',
     current_question_index INTEGER DEFAULT -1,
@@ -86,6 +87,7 @@ CREATE TABLE IF NOT EXISTS answers (
 CREATE INDEX IF NOT EXISTS idx_questions_quiz_id ON questions(quiz_id);
 CREATE INDEX IF NOT EXISTS idx_choices_question_id ON choices(question_id);
 CREATE INDEX IF NOT EXISTS idx_matches_slug ON matches(slug);
+CREATE INDEX IF NOT EXISTS idx_matches_pin ON matches(pin);
 CREATE INDEX IF NOT EXISTS idx_match_players_match_id ON match_players(match_id);
 CREATE INDEX IF NOT EXISTS idx_match_players_player_id ON match_players(player_id);
 CREATE INDEX IF NOT EXISTS idx_answers_match_id ON answers(match_id);
