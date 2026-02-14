@@ -16,6 +16,9 @@ Squizzy is a real-time quiz game with self-hosted PostgreSQL backend.
 - 🔐 Admin authentication system
 - 📝 Complete quiz and question management through UI
 - 📱 QR code generation for easy match access
+- 🔢 **4-digit PIN system for joining matches**
+- ▶️ **Start match button for quiz masters**
+- 🏠 **Join match from home page using PIN**
 - 🐘 Self-hosted PostgreSQL database
 - 🐳 Docker Swarm ready
 - 📱 Mobile-optimized interface
@@ -99,14 +102,35 @@ For detailed deployment instructions, see [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYME
 3. Select the quiz you want to use
 4. Enter a unique slug (URL-friendly name)
 5. Click **"Salvar"**
+6. A **4-digit PIN** will be automatically generated for the match
 
-### 6. Share the Match
-1. Click **"📱 QR Code"** to display a QR code
-2. Players scan the QR code with their phones
-3. Or click **"Copiar Link"** to share the URL directly
-4. Players join at: `http://your-server/match/your-slug`
+### 6. Share the Match with Players
+Players can join your match in two ways:
 
-### 7. Manage Your Content
+**Option 1: QR Code (Recommended)**
+1. Click **"📱 QR Code"** button on your match
+2. A modal will display:
+   - QR code for scanning
+   - 4-digit PIN code
+   - Match URL
+3. Players scan the QR code or manually visit the URL
+4. Players will need to enter their nickname to join
+
+**Option 2: PIN Entry**
+1. Share the 4-digit PIN with players
+2. Players visit the home page
+3. Click **"Entrar em uma Partida"** button
+4. Enter the 4-digit PIN
+5. Players are redirected to the match and enter their nickname
+
+### 7. Start the Match
+1. Wait for players to join (you'll see the player count)
+2. Click the **"▶️ Iniciar Partida"** button when ready
+3. The match will start and players will begin seeing questions
+4. Players will see questions one by one with time limits
+5. After all questions, players see final results
+
+### 8. Manage Your Content
 - **Edit Quiz**: Click "Editar" on any quiz to modify title/description
 - **Edit Questions**: Click "📝 Perguntas" then "Editar" on any question
 - **Delete Content**: Click "Excluir" (with confirmation)
@@ -140,6 +164,8 @@ The application includes:
 - `POST /api/submit-answer` - Submit answer to a question
 - `POST /api/withdraw-player` - Remove player from match
 - `GET /api/get-match-details` - Get match details
+- `GET /api/join-match-by-pin?pin=<4digits>` - Find match by PIN code
+- `POST /api/start-match` - Start a match (sets started_at)
 
 ### Admin Endpoints (Authentication Required)
 - `POST /api/admin/login` - Admin login
@@ -190,7 +216,13 @@ npm run dev
 
 5. Open your browser and navigate to http://localhost:8080 (or the port shown in terminal)
 
-6. Complete the setup wizard:
+6. **For existing databases**: Run the migration to add PIN support:
+```bash
+node migrate.js
+```
+See [MIGRATION_PIN.md](MIGRATION_PIN.md) for details.
+
+7. Complete the setup wizard:
    - Enter an admin username and password
    - Choose whether to load sample quiz data
    - Click "Complete Setup"
