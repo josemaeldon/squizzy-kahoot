@@ -92,8 +92,17 @@ async function startServer() {
       console.log(`Server is running on port ${PORT}`)
     })
   } catch (error) {
-    console.error('Failed to start server:', error)
-    console.error('Database migrations failed. Please check your database configuration.')
+    console.error('Failed to start server due to migration failure:')
+    console.error('Error type:', error.name)
+    console.error('Error message:', error.message)
+    if (error.stack) {
+      console.error('Stack trace:', error.stack)
+    }
+    console.error('\nPlease check:')
+    console.error('1. Database connection settings (POSTGRES_* or DB_* environment variables)')
+    console.error('2. PostgreSQL is running and accessible')
+    console.error('3. Database user has sufficient privileges')
+    console.error('4. Migration SQL files are present in the database/ directory')
     process.exit(1)
   }
 }

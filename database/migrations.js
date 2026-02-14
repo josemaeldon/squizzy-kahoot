@@ -61,7 +61,7 @@ async function markMigrationApplied(name) {
 }
 
 /**
- * Run a single migration file
+ * Run a single migration file within a transaction
  */
 async function runMigration(migration) {
   const migrationPath = path.join(__dirname, migration.file)
@@ -72,11 +72,27 @@ async function runMigration(migration) {
   
   const sql = fs.readFileSync(migrationPath, 'utf8')
   
-  // Execute the migration SQL
-  await pool.query(sql)
-  
-  // Mark as applied
-  await markMigrationApplied(migration.name)
+  // Use a transaction to ensure atomicity
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    
+    // Execute the migration SQL
+    await client.query(sql)
+    
+    // Mark as applied within the same transaction
+    await client.query(
+      'INSERT INTO migrations (name) VALUES ($1)',
+      [migration.name]
+    )
+    
+    await client.query('COMMIT')
+  } catch (error) {
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+  }
 }
 
 /**
@@ -85,7 +101,15 @@ async function runMigration(migration) {
 async function runMigrations() {
   console.log('Starting database migrations...')
   
+  // Use a client for the entire migration process with advisory lock
+  const client = await pool.connect()
+  
   try {
+    // Acquire advisory lock to prevent concurrent migrations
+    // Lock ID: 123456 (arbitrary number for migration lock)
+    await client.query('SELECT pg_advisory_lock(123456)')
+    console.log('✓ Acquired migration lock')
+    
     // Create migrations tracking table
     await createMigrationsTable()
     console.log('✓ Migrations tracking table ready')
@@ -128,6 +152,10 @@ async function runMigrations() {
     console.error('✗ Migration failed:', error.message)
     console.error('========================================\n')
     throw error
+  } finally {
+    // Release advisory lock
+    await client.query('SELECT pg_advisory_unlock(123456)')
+    client.release()
   }
 }
 
