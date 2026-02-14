@@ -24,6 +24,25 @@ Table of contents:
 
 ## Deploy your own Squizzy instance
 
+### Docker Swarm Deployment (Recommended)
+
+For production deployments, we recommend using Docker Swarm. This method provides:
+- Automatic container orchestration and scaling
+- Built-in health checks and restart policies
+- Zero-downtime deployments
+- Load balancing across replicas
+
+See [DOCKER_DEPLOYMENT.md](DOCKER_DEPLOYMENT.md) for detailed instructions.
+
+**Quick Start with Docker:**
+
+1. Configure Sanity.io project (see below)
+2. Pull the image: `docker pull ghcr.io/josemaeldon/squizzy-kahoot:latest`
+3. Set your Sanity write token: `export SQUIZZY_WRITE_TOKEN=your-token`
+4. Deploy: `docker stack deploy -c docker-compose.yml squizzy`
+
+### Alternative Deployment Options
+
 To get started with Squizzy, follow these instructions.
 
 1. [Copy](https://github.com/sanity-io/squizzy/generate) this repository and clone it to your computer
