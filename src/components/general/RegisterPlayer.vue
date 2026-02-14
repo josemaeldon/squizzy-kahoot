@@ -11,7 +11,6 @@
       autocomplete="off"
       maxlength="20"
       @keydown.enter="validateName"
-      @input="handleInput"
     />
     <div class="char-count">{{ playerName ? playerName.length : 0 }}/20 caracteres</div>
     <v-button :title="buttonTitle" :is-loading="isLoading" @click.native="validateName" />
@@ -56,13 +55,6 @@ export default {
     }
   },
   methods: {
-    handleInput(event) {
-      // Trim to 20 characters
-      if (this.playerName && this.playerName.length > 20) {
-        this.playerName = this.playerName.substring(0, 20)
-      }
-    },
-    
     validateName() {
       const name = this.playerName
       if (!name || name.length < 2) {

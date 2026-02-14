@@ -8,7 +8,7 @@ function isValidSlug(slug) {
 
 // Generate a unique 4-digit PIN
 async function generateUniquePIN() {
-  const maxAttempts = 10
+  const maxAttempts = 50 // Increased from 10 to handle more matches
   for (let i = 0; i < maxAttempts; i++) {
     const pin = Math.floor(1000 + Math.random() * 9000).toString() // 1000-9999
     
