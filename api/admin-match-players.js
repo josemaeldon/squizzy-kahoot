@@ -1,5 +1,7 @@
 const pool = require('./_src/db')
 
+// Note: Authentication should be handled at the routing level (e.g., in server.js)
+// This endpoint should only be accessible to authenticated admin users
 module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`)

@@ -1,5 +1,8 @@
 const pool = require('./_src/db')
+const { MATCH_STATUS } = require('./_src/constants')
 
+// Note: Authentication should be handled at the routing level (e.g., in server.js)
+// This endpoint should only be accessible to authenticated admin users
 module.exports = async (req, res) => {
   try {
     if (req.method !== 'POST') {
@@ -29,11 +32,11 @@ module.exports = async (req, res) => {
         const query = `
           UPDATE matches
           SET ended_at = CURRENT_TIMESTAMP,
-              status = 'completed'
-          WHERE id = $1
+              status = $1
+          WHERE id = $2
           RETURNING *
         `
-        const result = await pool.query(query, [matchId])
+        const result = await pool.query(query, [MATCH_STATUS.COMPLETED, matchId])
 
         if (result.rows.length === 0) {
           res.setHeader('Content-Type', 'application/json')

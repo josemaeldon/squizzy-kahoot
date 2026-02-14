@@ -5,7 +5,7 @@ const pool = require('./api/_src/db')
 
 // Generate a unique 4-digit PIN
 async function generateUniquePIN() {
-  const maxAttempts = 50
+  const maxAttempts = 500 // Increased for better collision handling
   for (let i = 0; i < maxAttempts; i++) {
     const pin = Math.floor(1000 + Math.random() * 9000).toString() // 1000-9999
     
@@ -17,7 +17,7 @@ async function generateUniquePIN() {
       return pin
     }
   }
-  throw new Error('Could not generate unique PIN after multiple attempts')
+  throw new Error('Could not generate unique PIN after multiple attempts. Database may have too many matches.')
 }
 
 async function updateMatchesWithPins() {
