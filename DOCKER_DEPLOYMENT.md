@@ -16,6 +16,33 @@ POSTGRES_PASSWORD=your-secure-password-here
 
 Note: The database schema and initial data will be configured through the web-based setup wizard on first access.
 
+## Environment Variables
+
+The application supports two sets of environment variables for database configuration:
+
+### Standard PostgreSQL Variables (Default)
+- `POSTGRES_HOST`: PostgreSQL host (default: postgres)
+- `POSTGRES_PORT`: PostgreSQL port (default: 5432)
+- `POSTGRES_DB`: Database name (default: squizzy)
+- `POSTGRES_USER`: Database user (default: squizzy)
+- `POSTGRES_PASSWORD`: Database password (required)
+
+### Laravel-style Variables (Alternative)
+The application also supports Laravel-style DB_* environment variables, which take precedence if provided:
+- `DB_HOST`: PostgreSQL host
+- `DB_PORT`: PostgreSQL port
+- `DB_DATABASE`: Database name
+- `DB_USERNAME`: Database user
+- `DB_PASSWORD`: Database password
+
+### Application Configuration
+- `PORT`: Application port (default: 80)
+- `NODE_ENV`: Environment (production/development)
+
+**Note on Port 80**: The application now defaults to port 80 instead of 3000 for easier integration with reverse proxies like Traefik. Docker containers can bind to port 80 without privilege issues. If you need to use a different port, set the `PORT` environment variable.
+
+**Note**: The application now defaults to port 80 instead of 3000 for easier integration with reverse proxies like Traefik.
+
 ## Deploy to Docker Swarm
 
 ### Option 1: Using Docker Compose (Recommended)
@@ -172,6 +199,77 @@ To add your own quizzes, you can:
 - Check that all dependencies are installed
 - Verify Node.js version (requires 12.x)
 - Review build logs in GitHub Actions
+
+## Using with External PostgreSQL and Traefik
+
+If you want to use an external PostgreSQL database (e.g., from another Docker stack) and Traefik for routing, here's an example configuration:
+
+**Security Note**: The example below shows passwords in plaintext for demonstration purposes. In production, use Docker secrets or an external secret management system instead.
+
+```yaml
+version: "3.8"
+
+services:
+  squizzy-kahoot:
+    image: ghcr.io/josemaeldon/squizzy-kahoot:latest
+    working_dir: /app
+    
+    environment:
+      # Application configuration
+      APP_NAME: "squizzy-kahoot"
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: https://kahoot.example.com
+      
+      # Database configuration (Laravel-style)
+      DB_CONNECTION: pgsql
+      DB_HOST: pgvector        # External PostgreSQL service name
+      DB_PORT: 5432
+      DB_DATABASE: kahoot
+      DB_USERNAME: postgres
+      DB_PASSWORD: your-secure-password
+      
+      # Application port (optional, defaults to 80)
+      # PORT: 80
+
+    volumes:
+      - squizzy_kahoot_data:/app/data    # Optional: for any persistent data
+
+    networks:
+      - cloudbrnet    # External network shared with other services
+
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=cloudbrnet"
+        
+        # HTTP Router configuration
+        - "traefik.http.routers.squizzy-kahoot.rule=Host(`kahoot.example.com`)"
+        - "traefik.http.routers.squizzy-kahoot.entrypoints=websecure"
+        - "traefik.http.routers.squizzy-kahoot.tls.certresolver=letsencryptresolver"
+        
+        # Service configuration - application listens on port 80 by default
+        - "traefik.http.services.squizzy-kahoot.loadbalancer.server.port=80"
+
+networks:
+  cloudbrnet:
+    external: true    # Use existing external network
+
+volumes:
+  squizzy_kahoot_data:
+    driver: local
+```
+
+**Important Notes:**
+- The application now defaults to port 80 (configurable via `PORT` environment variable)
+- DB_* environment variables are supported for easier integration with Laravel-style stacks
+- The working directory is `/app` (already set in the Dockerfile)
+- Make sure the external PostgreSQL service is accessible via the shared network
+- The database will be initialized via the setup wizard on first access
 
 ## Production Considerations
 
