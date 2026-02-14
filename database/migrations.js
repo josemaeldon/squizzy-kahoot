@@ -11,6 +11,10 @@ const pool = require('../api/_src/db')
 const fs = require('fs')
 const path = require('path')
 
+// PostgreSQL advisory lock ID for preventing concurrent migrations
+// This is an arbitrary number used to uniquely identify the migration lock
+const MIGRATION_LOCK_ID = 123456
+
 // Define migrations in order
 const MIGRATIONS = [
   {
@@ -106,8 +110,7 @@ async function runMigrations() {
   
   try {
     // Acquire advisory lock to prevent concurrent migrations
-    // Lock ID: 123456 (arbitrary number for migration lock)
-    await client.query('SELECT pg_advisory_lock(123456)')
+    await client.query('SELECT pg_advisory_lock($1)', [MIGRATION_LOCK_ID])
     console.log('✓ Acquired migration lock')
     
     // Create migrations tracking table
@@ -154,7 +157,7 @@ async function runMigrations() {
     throw error
   } finally {
     // Release advisory lock
-    await client.query('SELECT pg_advisory_unlock(123456)')
+    await client.query('SELECT pg_advisory_unlock($1)', [MIGRATION_LOCK_ID])
     client.release()
   }
 }
