@@ -115,11 +115,15 @@ export default {
     },
     question() {
       const question = this.$store.getters['matchStore/currentQuestion']
-      return question
+      return question || {title: 'Carregando...', choices: []}
     },
     correctAnswers() {
       const ICONS = ['Circle', 'Star', 'Triangle', 'Square']
-      const choices = this.$store.getters['matchStore/currentQuestion'].choices.map(
+      const currentQuestion = this.$store.getters['matchStore/currentQuestion']
+      if (!currentQuestion || !currentQuestion.choices) {
+        return []
+      }
+      const choices = currentQuestion.choices.map(
         (choice, index) => ({
           ...choice,
           index

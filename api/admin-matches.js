@@ -10,7 +10,7 @@ function isValidSlug(slug) {
 async function generateUniquePIN() {
   const maxAttempts = 50 // Increased from 10 to handle more matches
   for (let i = 0; i < maxAttempts; i++) {
-    const pin = Math.floor(1000 + Math.random() * 9000).toString() // 1000-9999
+    const pin = (Math.floor(Math.random() * 9000) + 1000).toString() // 1000-9999
     
     // Check if PIN is already in use
     const checkQuery = `SELECT id FROM matches WHERE pin = $1`
