@@ -10,17 +10,38 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || 'squizzy',
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000, // Increased from 2000ms to 10000ms to prevent timeout during migrations
 })
+
+let connectionCount = 0
 
 // Test connection
 pool.on('connect', () => {
-  console.log('Connected to PostgreSQL database')
+  connectionCount++
+  // Only log the first few connections to reduce noise
+  if (connectionCount <= 3) {
+    console.log('Connected to PostgreSQL database')
+  }
 })
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle PostgreSQL client', err)
   // Log error but don't crash - let the pool handle reconnection
 })
+
+// Graceful shutdown
+async function gracefulShutdown(signal) {
+  console.log(`${signal} received, closing database pool...`)
+  try {
+    await pool.end()
+    console.log('Database pool closed')
+  } catch (error) {
+    console.error('Error closing database pool:', error)
+  }
+  process.exit(0)
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
 module.exports = pool
