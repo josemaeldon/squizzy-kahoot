@@ -14,6 +14,8 @@ This guide explains how to deploy Squizzy using Docker Swarm with self-hosted Po
 POSTGRES_PASSWORD=your-secure-password-here
 ```
 
+Note: The database schema and initial data will be configured through the web-based setup wizard on first access.
+
 ## Deploy to Docker Swarm
 
 ### Option 1: Using Docker Compose (Recommended)
@@ -34,6 +36,11 @@ docker stack services squizzy
 docker service logs squizzy_squizzy
 docker service logs squizzy_postgres
 ```
+
+4. Access the application at http://localhost:3000 and complete the setup wizard:
+   - Enter an admin username and password
+   - Choose whether to load sample quiz data
+   - Click "Complete Setup"
 
 ### Option 2: Manual Deployment
 
@@ -137,7 +144,7 @@ The application uses PostgreSQL as its database. Configuration is done via envir
 
 ### Initial Data
 
-The database schema is automatically initialized when PostgreSQL starts. Sample quiz data is included in `database/seed.sql`.
+The database schema is initialized through the web-based setup wizard on first access. You can choose to load sample quiz data during the setup process.
 
 To add your own quizzes, you can:
 1. Connect to the PostgreSQL database
