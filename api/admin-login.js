@@ -78,10 +78,10 @@ module.exports = async (req, res) => {
           })
 
           // Set session cookie
+          const maxAge = Math.floor(SESSION_DURATION / 1000)
           res.setHeader(
             'Set-Cookie',
-            `session=${sessionToken}; Path=/; HttpOnly; Max-Age=${SESSION_DURATION /
-              1000}; SameSite=Strict`
+            `session=${sessionToken}; Path=/; HttpOnly; Max-Age=${maxAge}; SameSite=Strict`
           )
           res.setHeader('Content-Type', 'application/json')
           res.statusCode = 200
