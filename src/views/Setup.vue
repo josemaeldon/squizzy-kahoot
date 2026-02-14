@@ -1,8 +1,8 @@
 <template>
   <div class="setup">
     <div class="setup-container">
-      <h1 class="setup-title">Welcome to Squizzy Setup</h1>
-      <p class="setup-subtitle">Configure your Squizzy installation</p>
+      <h1 class="setup-title">Configuração do Squizzy</h1>
+      <p class="setup-subtitle">Configure sua instalação do Squizzy</p>
       
       <div v-if="!setupComplete" class="setup-form">
         <div v-if="error" class="error-message">
@@ -10,36 +10,36 @@
         </div>
         
         <div class="form-group">
-          <label for="adminUsername">Admin Username</label>
+          <label for="adminUsername">Nome de usuário do Admin</label>
           <input
             id="adminUsername"
             v-model="adminUsername"
             type="text"
-            placeholder="Enter admin username"
+            placeholder="Digite o nome de usuário do admin"
             class="form-input"
             :disabled="processing"
           />
         </div>
         
         <div class="form-group">
-          <label for="adminPassword">Admin Password</label>
+          <label for="adminPassword">Senha do Admin</label>
           <input
             id="adminPassword"
             v-model="adminPassword"
             type="password"
-            placeholder="Enter admin password (min 8 characters)"
+            placeholder="Digite a senha do admin (mínimo 8 caracteres)"
             class="form-input"
             :disabled="processing"
           />
         </div>
         
         <div class="form-group">
-          <label for="adminPasswordConfirm">Confirm Password</label>
+          <label for="adminPasswordConfirm">Confirmar Senha</label>
           <input
             id="adminPasswordConfirm"
             v-model="adminPasswordConfirm"
             type="password"
-            placeholder="Confirm admin password"
+            placeholder="Confirme a senha do admin"
             class="form-input"
             :disabled="processing"
           />
@@ -52,7 +52,7 @@
               type="checkbox"
               :disabled="processing"
             />
-            Load sample quiz data
+            Carregar dados de quiz de exemplo
           </label>
         </div>
         
@@ -61,15 +61,15 @@
           :disabled="processing || !isFormValid"
           @click="completeSetup"
         >
-          {{ processing ? 'Setting up...' : 'Complete Setup' }}
+          {{ processing ? 'Configurando...' : 'Concluir Configuração' }}
         </button>
       </div>
       
       <div v-if="setupComplete" class="success-message">
-        <h2>Setup Complete!</h2>
-        <p>Your Squizzy installation is ready to use.</p>
+        <h2>Configuração Concluída!</h2>
+        <p>Sua instalação do Squizzy está pronta para uso.</p>
         <button class="setup-button" @click="goHome">
-          Go to Home
+          Ir para a Página Inicial
         </button>
       </div>
     </div>
@@ -119,11 +119,11 @@ export default {
         if (response.data.success) {
           this.setupComplete = true
         } else {
-          this.error = response.data.message || 'Setup failed. Please try again.'
+          this.error = response.data.message || 'Configuração falhou. Por favor, tente novamente.'
         }
       } catch (error) {
         console.error('Error completing setup:', error)
-        this.error = error.response?.data?.error || 'Setup failed. Please check your configuration.'
+        this.error = error.response?.data?.error || 'Configuração falhou. Por favor, verifique sua configuração.'
       } finally {
         this.processing = false
       }

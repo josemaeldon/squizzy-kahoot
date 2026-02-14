@@ -15,8 +15,8 @@ export default {
   },
   data() {
     return {
-      title: 'Welcome to Squizzy!',
-      subtitle: 'To play, find a QR code to scan or a URL to follow',
+      title: 'Bem-vindo ao Squizzy!',
+      subtitle: 'Para jogar, encontre um código QR para escanear ou um URL para seguir',
       expression: {mouth: 'happy'}
     }
   },

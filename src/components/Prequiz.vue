@@ -13,10 +13,10 @@
       <div class="player-count">
         {{ playerCount }}
       </div>
-      <div class="label">{{ playerCount !== 1 ? 'players have' : 'player has' }} joined</div>
+      <div class="label">{{ playerCount !== 1 ? 'jogadores entraram' : 'jogador entrou' }}</div>
     </div>
     <div v-if="isFinished">
-      <h2 class="top-players">Top players</h2>
+      <h2 class="top-players">Melhores jogadores</h2>
       <leaderboard class="players" top-players>
         <span slot="crown" slot-scope="player" class="crown" :data-rank="player.index">
           <svg stroke-width="0" viewBox="0 0 640 512" xmlns="http://www.w3.org/2000/svg">
@@ -26,7 +26,7 @@
           </svg>
         </span>
       </leaderboard>
-      <p>To play again, please scan<br />a new QR code!</p>
+      <p>Para jogar novamente, por favor escaneie<br />um novo código QR!</p>
     </div>
   </div>
 </template>
@@ -71,8 +71,8 @@ export default {
       if (this.isFinished)
         return {
           name: 'Finished',
-          title: 'Thank you for playing!',
-          subtitle: 'The match finished, did you have a squid time?',
+          title: 'Obrigado por jogar!',
+          subtitle: 'A partida terminou, você se divertiu?',
           status: this.match.quiz.title,
           expression: {mouth: 'happy'}
         }
@@ -81,16 +81,16 @@ export default {
       if (!player)
         return {
           name: 'register',
-          title: `Squizzy time!`,
-          status: `Joining: ${title}`,
+          title: `Hora do Squizzy!`,
+          status: `Entrando: ${title}`,
           expression: {eyes: 'happy', mouth: 'default'}
         }
 
       return {
         name: 'welcome',
-        title: `Hello ${player.name}!`,
-        subtitle: 'Game is about to start. Waiting for the Squizzmaster...',
-        status: `Joined: ${title}`,
+        title: `Olá ${player.name}!`,
+        subtitle: 'O jogo está prestes a começar. Aguardando o Squizzmaster...',
+        status: `Entrou: ${title}`,
         expression: {eyes: 'default', mouth: 'happy'}
       }
     },
@@ -115,7 +115,7 @@ export default {
     registerExistingPlayer() {
       return this.$store.dispatch('playerStore/registerExistingPlayer').then(response => {
         if (!response) {
-          this.error = 'Something went wrong, please try again.'
+          this.error = 'Algo deu errado, por favor tente novamente.'
           this.$emit('error', this.error)
         } else {
           this.error = false

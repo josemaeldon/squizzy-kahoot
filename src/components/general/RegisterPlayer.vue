@@ -23,10 +23,10 @@ export default {
   },
   data() {
     return {
-      label: 'What do we call you?',
-      placeholder: 'Nickname',
+      label: 'Como devemos te chamar?',
+      placeholder: 'Apelido',
       playerName: null,
-      buttonTitle: 'Join quiz',
+      buttonTitle: 'Entrar no quiz',
       error: false
     }
   },
@@ -56,7 +56,7 @@ export default {
         .dispatch('playerStore/registerNewPlayer', this.playerName)
         .then(response => {
           if (!response) {
-            this.error = 'Something went wrong, please try again.'
+            this.error = 'Algo deu errado, por favor tente novamente.'
             this.$emit('error', this.error)
           } else {
             this.error = false

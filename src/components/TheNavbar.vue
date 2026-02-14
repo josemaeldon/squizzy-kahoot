@@ -2,7 +2,7 @@
   <div class="navbar">
     <div class="app-name">{{ $appName }}</div>
     <button v-if="showLeaveButton" class="leave-button" @click="leaveMatch">
-      <span class="leave-label">Leave match</span>
+      <span class="leave-label">Sair da partida</span>
       <span class="leave-icon" role="img">
         <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
           <path
