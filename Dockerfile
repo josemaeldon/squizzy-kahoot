@@ -23,8 +23,8 @@ FROM node:12-alpine
 
 WORKDIR /app
 
-# Install runtime dependencies (Python for node-sass if needed in production)
-RUN apk add --no-cache python3 make g++
+# Install runtime dependencies (Python for node-sass if needed in production, wget for healthcheck)
+RUN apk add --no-cache python3 make g++ wget
 
 # Copy package files
 COPY package*.json ./
@@ -42,8 +42,8 @@ COPY healthcheck.sh /app/healthcheck.sh
 # Make healthcheck executable
 RUN chmod +x /app/healthcheck.sh
 
-# Expose port
-EXPOSE 3000
+# Expose port (default 80, configurable via PORT env var)
+EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
