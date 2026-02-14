@@ -3,13 +3,17 @@
     <label :for="`input-${label}-id`">{{ label }}</label>
     <input
       :id="`input-${label}-id`"
+      ref="nameInput"
       v-model.trim="playerName"
       class="input"
       type="text"
       :placeholder="placeholder"
       autocomplete="off"
+      maxlength="20"
       @keydown.enter="validateName"
+      @input="handleInput"
     />
+    <div class="char-count">{{ playerName ? playerName.length : 0 }}/20 caracteres</div>
     <v-button :title="buttonTitle" :is-loading="isLoading" @click.native="validateName" />
     <p v-if="error" class="error-message">{{ error }}</p>
   </div>
@@ -24,7 +28,7 @@ export default {
   data() {
     return {
       label: 'Como devemos te chamar?',
-      placeholder: 'Apelido',
+      placeholder: 'Digite seu apelido',
       playerName: null,
       buttonTitle: 'Entrar no quiz',
       error: false
@@ -35,6 +39,14 @@ export default {
       return this.$store.state.playerStore.isLoading
     }
   },
+  mounted() {
+    // Auto-focus the input when component mounts
+    this.$nextTick(() => {
+      if (this.$refs.nameInput) {
+        this.$refs.nameInput.focus()
+      }
+    })
+  },
   watch: {
     playerName() {
       if (this.error) {
@@ -44,8 +56,20 @@ export default {
     }
   },
   methods: {
+    handleInput(event) {
+      // Trim to 20 characters
+      if (this.playerName && this.playerName.length > 20) {
+        this.playerName = this.playerName.substring(0, 20)
+      }
+    },
+    
     validateName() {
       const name = this.playerName
+      if (!name || name.length < 2) {
+        this.error = 'O apelido deve ter pelo menos 2 caracteres'
+        this.$emit('error', this.error)
+        return
+      }
       if (name) {
         this.registerNewPlayer()
       }
@@ -96,7 +120,15 @@ export default {
 .input::placeholder
   color: $color-gray--darker
 
+.char-count
+  font-size: 0.75rem
+  color: $color-gray--darker
+  margin-top: -0.5rem
+  margin-bottom: 0.5rem
+
 .error-message
   margin-top: 0.5rem
   max-width: 250px
+  color: #ef4444
+  font-weight: 600
 </style>
