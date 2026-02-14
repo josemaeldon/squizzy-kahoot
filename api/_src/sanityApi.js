@@ -1,7 +1,7 @@
 const client = require('./client')
 const nanoid = require('nanoid')
 
-export const ensurePlayerExists = async (playerId, playerName) => {
+const ensurePlayerExists = async (playerId, playerName) => {
   const player = {
     _type: 'player',
     _id: playerId,
@@ -10,7 +10,7 @@ export const ensurePlayerExists = async (playerId, playerName) => {
   return client.createOrReplace(player)
 }
 
-export const fetchMatch = async matchSlug => {
+const fetchMatch = async matchSlug => {
   const match = await client.fetch(
     '*[_type == "match" && slug.current == $matchSlug && !(_id in path("drafts.**"))][0]',
     {
@@ -20,14 +20,14 @@ export const fetchMatch = async matchSlug => {
   return match
 }
 
-export const withdrawPlayerFromMatch = async (playerId, match) => {
+const withdrawPlayerFromMatch = async (playerId, match) => {
   return client
     .patch(match._id)
     .unset([`players[_ref=="${playerId}"]`])
     .commit()
 }
 
-export const ensurePlayerParticipation = async (player, match) => {
+const ensurePlayerParticipation = async (player, match) => {
   const playerRef = {_key: nanoid(), _type: 'reference', _ref: player._id}
   return client
     .patch(match._id)
@@ -37,7 +37,7 @@ export const ensurePlayerParticipation = async (player, match) => {
     .commit()
 }
 
-export const submitAnswer = async (match, playerId, questionKey, selectedChoiceKey) => {
+const submitAnswer = async (match, playerId, questionKey, selectedChoiceKey) => {
   // Has this player already answered the same quiestion?
   let indexOfExistingAnswer = -1
   const answers = match.answers || []
@@ -74,4 +74,12 @@ export const submitAnswer = async (match, playerId, questionKey, selectedChoiceK
     .setIfMissing({answers: []})
     .insert(operation, position, [answer])
     .commit()
+}
+
+module.exports = {
+  ensurePlayerExists,
+  fetchMatch,
+  withdrawPlayerFromMatch,
+  ensurePlayerParticipation,
+  submitAnswer
 }
