@@ -7,6 +7,29 @@ This guide explains how to deploy Squizzy using Docker Swarm with self-hosted Po
 - Docker Swarm initialized (`docker swarm init`)
 - PostgreSQL database (included in docker-compose.yml)
 
+## Automatic Database Migrations
+
+**Important:** Starting from this version, the application **automatically runs database migrations** on startup. When you update the stack or restart the application:
+
+1. The application will check the database connection
+2. It will create a `migrations` tracking table if it doesn't exist
+3. It will run any new migrations that haven't been applied yet
+4. Only after migrations complete successfully, the server will start accepting requests
+
+This ensures that your database is always up-to-date with the latest schema changes whenever you deploy a new version. You no longer need to manually run migration scripts.
+
+### Migration System Features
+- **Idempotent**: Safe to run multiple times - already applied migrations are skipped
+- **Ordered**: Migrations are always applied in the correct order
+- **Tracked**: A `migrations` table records which migrations have been applied
+- **Safe**: Server won't start if migrations fail
+
+### Manual Migration (Optional)
+If you prefer to run migrations manually before starting the application:
+```bash
+node migrate.js
+```
+
 ## Environment Setup
 
 1. Create a `.env` file with your database configuration:
@@ -14,7 +37,7 @@ This guide explains how to deploy Squizzy using Docker Swarm with self-hosted Po
 POSTGRES_PASSWORD=your-secure-password-here
 ```
 
-Note: The database schema and initial data will be configured through the web-based setup wizard on first access.
+Note: The database schema is now automatically initialized through the migration system on first startup.
 
 ## Environment Variables
 
@@ -112,6 +135,22 @@ To update to a new version:
 ```bash
 docker service update --image ghcr.io/josemaeldon/squizzy-kahoot:latest squizzy_squizzy
 ```
+
+**Important:** When you update the service, the new containers will automatically:
+1. Run all pending database migrations on startup
+2. Only start accepting requests after migrations complete successfully
+3. Skip migrations that have already been applied
+
+This ensures a smooth, zero-downtime deployment with automatic database updates. You can monitor the migration process in the service logs:
+
+```bash
+docker service logs -f squizzy_squizzy
+```
+
+Look for migration messages like:
+- `Starting database migrations...`
+- `✓ Completed [migration name]`
+- `✓ Database is up to date`
 
 ## Scaling
 

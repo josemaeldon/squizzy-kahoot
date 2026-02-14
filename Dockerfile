@@ -36,6 +36,7 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/api ./api
 COPY --from=builder /app/server.js ./
+COPY --from=builder /app/migrate.js ./
 COPY --from=builder /app/database ./database
 COPY healthcheck.sh /app/healthcheck.sh
 

@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const cors = require('cors')
 const rateLimit = require('express-rate-limit')
+const { runMigrations } = require('./database/migrations')
 
 const app = express()
 const PORT = process.env.PORT || 80
@@ -81,6 +82,29 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+// Run database migrations before starting the server
+async function startServer() {
+  try {
+    console.log('Running database migrations...')
+    await runMigrations()
+    
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server is running on port ${PORT}`)
+    })
+  } catch (error) {
+    console.error('Failed to start server due to migration failure:')
+    console.error('Error type:', error.name)
+    console.error('Error message:', error.message)
+    if (error.stack) {
+      console.error('Stack trace:', error.stack)
+    }
+    console.error('\nPlease check:')
+    console.error('1. Database connection settings (POSTGRES_* or DB_* environment variables)')
+    console.error('2. PostgreSQL is running and accessible')
+    console.error('3. Database user has sufficient privileges')
+    console.error('4. Migration SQL files are present in the database/ directory')
+    process.exit(1)
+  }
+}
+
+startServer()

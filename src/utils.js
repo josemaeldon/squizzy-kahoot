@@ -3,6 +3,11 @@ export const answerDistribution = match => {
   const {questions} = quiz
   const currentQuestion = questions.find(question => question._key === currentQuestionKey)
 
+  // Return empty array if no current question or no choices
+  if (!currentQuestion || !currentQuestion.choices) {
+    return []
+  }
+
   const choicesWithAnswerCount = currentQuestion.choices.map(choice => {
     const answersToThisChoice = answers
       ? answers.filter(
