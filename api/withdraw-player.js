@@ -1,6 +1,6 @@
 const micro = require('micro')
 const cors = require('micro-cors')()
-const {fetchMatch, withdrawPlayerFromMatch} = require('./_src/sanityApi')
+const {fetchMatch, withdrawPlayerFromMatch} = require('./_src/dbApi')
 
 const {json, send} = micro
 
