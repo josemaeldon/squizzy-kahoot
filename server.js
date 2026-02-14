@@ -47,6 +47,8 @@ app.all('/api/submit-answer', wrapHandler(submitAnswerHandler))
 app.all('/api/withdraw-player', wrapHandler(withdrawPlayerHandler))
 
 // Serve index.html for all other routes (SPA fallback)
+// Note: This serves static HTML files and doesn't need rate limiting
+// as it's not performing any dynamic operations or database queries
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'))
 })
