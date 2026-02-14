@@ -68,6 +68,7 @@ module.exports = async (req, res) => {
           config.adminPassword = config.adminPassword.trim()
         }
 
+        // Empty strings (including whitespace-only strings after trimming) are falsy
         // Validate required fields
         if (!config.adminUsername || !config.adminPassword) {
           res.setHeader('Content-Type', 'application/json')

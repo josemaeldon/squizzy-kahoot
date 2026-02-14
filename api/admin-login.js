@@ -1,6 +1,6 @@
 const pool = require('./_src/db')
 const bcrypt = require('bcrypt')
-const {nanoid} = require('nanoid')
+const nanoid = require('nanoid')
 
 // Simple in-memory session store (for production, use Redis or database)
 // NOTE: This implementation is suitable for single-instance deployments.
@@ -38,6 +38,7 @@ module.exports = async (req, res) => {
           username = username?.trim()
           password = password?.trim()
 
+          // Empty strings (including whitespace-only strings after trimming) are falsy
           if (!username || !password) {
             res.setHeader('Content-Type', 'application/json')
             res.statusCode = 400
