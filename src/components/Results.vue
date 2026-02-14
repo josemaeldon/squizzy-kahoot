@@ -8,7 +8,7 @@
         {{ question.title }}
       </h1>
       <div class="correct-answers">
-        <div class="label">Correct answer{{ correctAnswers.length > 1 ? 's' : '' }}</div>
+        <div class="label">Resposta{{ correctAnswers.length > 1 ? 's' : '' }} correta{{ correctAnswers.length > 1 ? 's' : '' }}</div>
         <div class="answers">
           <div
             v-for="choice in correctAnswers"
@@ -86,7 +86,7 @@ export default {
   data() {
     return {
       activeView: RESULT_VIEWS.graph,
-      status: 'Waiting for Squizzmaster...'
+      status: 'Aguardando o Squizzmaster...'
     }
   },
   computed: {
@@ -105,8 +105,8 @@ export default {
       const playerAnswer = this.playerAnswer
       // Select feedback sentence based on player answer
       return playerAnswer.isCorrect
-        ? `Correct! ${FEEDBACK_CORRECT[randomCorrect]}`
-        : `Wrong! ${FEEDBACK_WRONG[randomWrong]}`
+        ? `Correto! ${FEEDBACK_CORRECT[randomCorrect]}`
+        : `Errado! ${FEEDBACK_WRONG[randomWrong]}`
     },
     expression() {
       return this.playerAnswer.isCorrect
