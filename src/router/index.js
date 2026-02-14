@@ -13,9 +13,27 @@ const routes = [
     component: () => import(/* webpackChunkName: "setup" */ '../views/Setup.vue')
   },
   {
+    path: '/login',
+    name: 'login',
+    component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue')
+  },
+  {
     path: '/admin',
     name: 'admin',
-    component: () => import(/* webpackChunkName: "admin" */ '../views/Admin.vue')
+    component: () => import(/* webpackChunkName: "admin" */ '../views/Admin.vue'),
+    async beforeEnter(to, from, next) {
+      try {
+        const response = await axios.get('/api/admin/auth-status')
+        if (response.data.authenticated) {
+          next()
+        } else {
+          next('/login')
+        }
+      } catch (error) {
+        console.error('Error checking auth:', error)
+        next('/login')
+      }
+    }
   },
   {
     path: '*',

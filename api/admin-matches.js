@@ -3,17 +3,22 @@ const { nanoid } = require('nanoid')
 
 module.exports = async (req, res) => {
   try {
+    const url = new URL(req.url, `http://${req.headers.host}`)
+    
     if (req.method === 'GET') {
-      // List all matches with quiz info
+      // List all matches with quiz info and player count
       const query = `
         SELECT m.*,
                json_build_object(
                  'id', q.id,
                  'title', q.title,
                  'description', q.description
-               ) as quiz
+               ) as quiz,
+               COUNT(DISTINCT mp.player_id) as player_count
         FROM matches m
         JOIN quizzes q ON m.quiz_id = q.id
+        LEFT JOIN match_players mp ON m.id = mp.match_id
+        GROUP BY m.id, q.id
         ORDER BY m.created_at DESC
       `
       const result = await pool.query(query)
@@ -68,6 +73,116 @@ module.exports = async (req, res) => {
           res.end(JSON.stringify({ error: 'Requisição inválida' }))
         }
       })
+      
+    } else if (req.method === 'PUT') {
+      // Update a match
+      let body = ''
+      req.on('data', chunk => {
+        body += chunk.toString()
+      })
+      
+      req.on('end', async () => {
+        try {
+          const { id, slug, quizId, status } = JSON.parse(body)
+          
+          if (!id) {
+            res.setHeader('Content-Type', 'application/json')
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'ID da partida é obrigatório' }))
+            return
+          }
+          
+          // Build update query dynamically based on provided fields
+          const updates = []
+          const values = []
+          let paramCount = 1
+          
+          if (slug !== undefined) {
+            // Check if new slug is already in use by another match
+            const checkQuery = `SELECT id FROM matches WHERE slug = $1 AND id != $2`
+            const checkResult = await pool.query(checkQuery, [slug, id])
+            
+            if (checkResult.rows.length > 0) {
+              res.setHeader('Content-Type', 'application/json')
+              res.statusCode = 400
+              res.end(JSON.stringify({ error: 'Este slug já está em uso' }))
+              return
+            }
+            
+            updates.push(`slug = $${paramCount}`)
+            values.push(slug)
+            paramCount++
+          }
+          
+          if (quizId !== undefined) {
+            updates.push(`quiz_id = $${paramCount}`)
+            values.push(quizId)
+            paramCount++
+          }
+          
+          if (status !== undefined) {
+            updates.push(`status = $${paramCount}`)
+            values.push(status)
+            paramCount++
+          }
+          
+          if (updates.length === 0) {
+            res.setHeader('Content-Type', 'application/json')
+            res.statusCode = 400
+            res.end(JSON.stringify({ error: 'Nenhum campo para atualizar' }))
+            return
+          }
+          
+          values.push(id)
+          const query = `
+            UPDATE matches
+            SET ${updates.join(', ')}
+            WHERE id = $${paramCount}
+            RETURNING *
+          `
+          const result = await pool.query(query, values)
+          
+          if (result.rows.length === 0) {
+            res.setHeader('Content-Type', 'application/json')
+            res.statusCode = 404
+            res.end(JSON.stringify({ error: 'Partida não encontrada' }))
+            return
+          }
+          
+          res.setHeader('Content-Type', 'application/json')
+          res.statusCode = 200
+          res.end(JSON.stringify(result.rows[0]))
+        } catch (parseError) {
+          console.error('Error parsing request:', parseError)
+          res.setHeader('Content-Type', 'application/json')
+          res.statusCode = 400
+          res.end(JSON.stringify({ error: 'Requisição inválida' }))
+        }
+      })
+      
+    } else if (req.method === 'DELETE') {
+      // Delete a match
+      const matchId = url.searchParams.get('id')
+      
+      if (!matchId) {
+        res.setHeader('Content-Type', 'application/json')
+        res.statusCode = 400
+        res.end(JSON.stringify({ error: 'ID da partida é obrigatório' }))
+        return
+      }
+      
+      const result = await pool.query('DELETE FROM matches WHERE id = $1 RETURNING id', [matchId])
+      
+      if (result.rows.length === 0) {
+        res.setHeader('Content-Type', 'application/json')
+        res.statusCode = 404
+        res.end(JSON.stringify({ error: 'Partida não encontrada' }))
+        return
+      }
+      
+      res.setHeader('Content-Type', 'application/json')
+      res.statusCode = 200
+      res.end(JSON.stringify({ success: true }))
       
     } else {
       res.setHeader('Content-Type', 'application/json')
