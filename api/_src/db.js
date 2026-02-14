@@ -30,17 +30,18 @@ pool.on('error', (err) => {
 })
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, closing database pool...')
-  await pool.end()
-  console.log('Database pool closed')
-})
-
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, closing database pool...')
-  await pool.end()
-  console.log('Database pool closed')
+async function gracefulShutdown(signal) {
+  console.log(`${signal} received, closing database pool...`)
+  try {
+    await pool.end()
+    console.log('Database pool closed')
+  } catch (error) {
+    console.error('Error closing database pool:', error)
+  }
   process.exit(0)
-})
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+process.on('SIGINT', () => gracefulShutdown('SIGINT'))
 
 module.exports = pool
