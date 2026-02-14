@@ -103,6 +103,15 @@ const submitAnswer = async (match, playerId, questionId, choiceId) => {
     const isCorrect = choiceResult.rows[0].is_correct
     const points = isCorrect ? choiceResult.rows[0].points : 0
     
+    // Get previous answer if exists to adjust score
+    const prevAnswerQuery = `
+      SELECT points_earned FROM answers
+      WHERE match_id = $1 AND player_id = $2 AND question_id = $3
+    `
+    const prevAnswerResult = await client.query(prevAnswerQuery, [match.id, playerId, questionId])
+    const prevPoints = prevAnswerResult.rows.length > 0 ? prevAnswerResult.rows[0].points_earned : 0
+    const scoreDelta = points - prevPoints
+    
     // Insert or update answer
     const answerQuery = `
       INSERT INTO answers (match_id, player_id, question_id, choice_id, is_correct, points_earned) 
@@ -124,15 +133,15 @@ const submitAnswer = async (match, playerId, questionId, choiceId) => {
       points
     ])
     
-    // Update player score
-    if (isCorrect) {
+    // Update player score with delta
+    if (scoreDelta !== 0) {
       const scoreQuery = `
         UPDATE match_players 
         SET score = score + $1
         WHERE match_id = $2 AND player_id = $3
         RETURNING score
       `
-      await client.query(scoreQuery, [points, match.id, playerId])
+      await client.query(scoreQuery, [scoreDelta, match.id, playerId])
     }
     
     await client.query('COMMIT')

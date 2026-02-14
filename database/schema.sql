@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS answers (
     match_id UUID NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
     player_id VARCHAR(255) NOT NULL REFERENCES players(id),
     question_id UUID NOT NULL REFERENCES questions(id),
-    choice_id UUID NOT NULL REFERENCES choices(id),
+    choice_id UUID NOT NULL REFERENCES choices(id) ON DELETE CASCADE,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_correct BOOLEAN,
     points_earned INTEGER DEFAULT 0,
