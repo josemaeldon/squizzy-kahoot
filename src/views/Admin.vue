@@ -259,7 +259,7 @@
           <!-- Match Players Modal -->
           <div v-if="showMatchPlayers" class="form-modal" @click.self="closeMatchPlayersModal">
             <div class="form-content">
-              <h3>Jogadores - {{ selectedMatch?.quiz?.title }}</h3>
+              <h3>Jogadores - {{ selectedMatch?.quiz?.title || 'Partida' }}</h3>
               <p class="help-text">Gerencie os jogadores desta partida</p>
               
               <div v-if="matchPlayers.length === 0" class="empty-message">

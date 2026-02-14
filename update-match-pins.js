@@ -7,7 +7,7 @@ const pool = require('./api/_src/db')
 async function generateUniquePIN() {
   const maxAttempts = 500 // Increased for better collision handling
   for (let i = 0; i < maxAttempts; i++) {
-    const pin = Math.floor(1000 + Math.random() * 9000).toString() // 1000-9999
+    const pin = (Math.floor(Math.random() * 9000) + 1000).toString() // 1000-9999
     
     // Check if PIN is already in use
     const checkQuery = `SELECT id FROM matches WHERE pin = $1`
