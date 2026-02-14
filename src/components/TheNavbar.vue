@@ -1,6 +1,9 @@
 <template>
   <div class="navbar">
     <div class="app-name">{{ $appName }}</div>
+    <router-link v-if="showAdminLink" to="/admin" class="admin-link">
+      Admin
+    </router-link>
     <button v-if="showLeaveButton" class="leave-button" @click="leaveMatch">
       <span class="leave-label">Sair da partida</span>
       <span class="leave-icon" role="img">
@@ -21,6 +24,11 @@ export default {
       const hasPlayer = this.$store.state.playerStore.player
       const hasMatch = this.$store.state.matchStore.match
       return hasMatch && hasPlayer
+    },
+    showAdminLink() {
+      const hasPlayer = this.$store.state.playerStore.player
+      const hasMatch = this.$store.state.matchStore.match
+      return !hasMatch && !hasPlayer
     }
   },
   methods: {
@@ -43,6 +51,18 @@ export default {
   font-size: $font-size-large
   @media screen and (max-width: 374px)
     font-size: $font-size-medium
+
+.admin-link
+  color: $color-white
+  text-decoration: none
+  font-size: $font-size-small
+  padding: 0.5rem 1rem
+  background: rgba(255, 255, 255, 0.2)
+  border-radius: 0.25rem
+  transition: background 0.2s
+  
+  &:hover
+    background: rgba(255, 255, 255, 0.3)
 
 .leave-button
   font-size: $font-size-small
