@@ -38,7 +38,7 @@ const ensurePlayerParticipation = async (player, match) => {
 }
 
 const submitAnswer = async (match, playerId, questionKey, selectedChoiceKey) => {
-  // Has this player already answered the same quiestion?
+  // Has this player already answered the same question?
   let indexOfExistingAnswer = -1
   const answers = match.answers || []
   answers.forEach((answer, index) => {

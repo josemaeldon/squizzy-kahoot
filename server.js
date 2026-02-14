@@ -23,7 +23,7 @@ const wrapHandler = (handler) => {
     try {
       await handler(req, res)
     } catch (error) {
-      console.error('Error handling request:', error)
+      console.error(`Error handling ${req.method} ${req.path}:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
