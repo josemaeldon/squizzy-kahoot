@@ -387,11 +387,11 @@ export default {
   0%, 100%
     transform: translateY(5px) rotate(10deg) scale(0.95)
   50%
-	  transform: translateY(-5px) rotate(10deg) scale(0.95)
+      transform: translateY(-5px) rotate(10deg) scale(0.95)
 
 @keyframes background
   0%, 100%
     transform: scale(1) rotate(0deg)
   50%
-	  transform: scale(0.95) rotate(-10deg)
+    transform: scale(0.95) rotate(-10deg)
 </style>
